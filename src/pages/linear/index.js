@@ -1,10 +1,12 @@
 import React from 'react'
+import Cardlinear from './Cardlinear'
 
 export default () => (
   <div className="has-text-centered">
-    <section class="hero is-dark">
+    <section class="hero is-info">
       <div className="container">
-        <h1 className="title">Project Page</h1>
+        <h2 className="page-title"></h2>
+        <Cardlinear/>
       </div>
     </section>
   </div>

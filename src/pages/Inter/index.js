@@ -1,10 +1,11 @@
 import React from 'react'
+import CardInter from './CardInter'
 
 export default () => (
   <div className="has-text-centered">
     <section class="hero is-primary">
       <div className="container">
-        <h1 className="title">Post Page</h1>
+        <CardInter/>
       </div>
     </section>
   </div>
