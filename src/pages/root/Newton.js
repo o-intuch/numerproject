@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Input, Typography, Table } from "antd";
+import React from "react";
+import { Typography, Table } from "antd";
 import {
   range,
   compile,
@@ -9,11 +9,11 @@ import {
   abs,
   derivative,
 } from "mathjs";
-import { InputGroup, InputGroupAddon } from "reactstrap";
+import { InputGroup, InputGroupAddon, Input } from "reactstrap";
 import { Button, ButtonGroup } from "reactstrap";
 import createPlotlyComponent from "react-plotlyjs";
 import Plotly from "plotly.js/dist/plotly-cartesian";
-
+import axios from "axios";
 // import api from '../api'
 //import Title from 'antd/lib/skeleton/Title';
 var dataGraph = [];
@@ -22,7 +22,7 @@ const { Title } = Typography;
 
 const columns = [
   {
-    title: "Iteration", 
+    title: "Iteration",
     dataIndex: "iteration",
     key: "iteration",
   },
@@ -54,22 +54,28 @@ class newton extends React.Component {
       x2: 0,
       x0: 0,
       showTable: false,
+      apis: [],
+      xlapi: "",
     };
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
+  handleChange({ target: { value } }) {
+    this.setState({ data: value });
+    console.log(this.state.data);
+  }
 
-  // componentDidMount = async() => {
-  //   await api.getFunctionByName("Newton").then(db => {
-  //   this.setState({
-  //       fx:db.data.data.fx,
-  //       x1:db.data.data.x,
-  //   })
-  //   console.log(this.state.fx);
-  //   console.log(this.state.x0);
-  //   console.log(this.state.x1);
-  //   })
-  // }
+  x({ target: { value } }) {
+    this.state.x[0] = parseFloat(value);
+    this.state.xlapi = value;
+  }
+
+  apinumer = (a) => {
+    axios.get("http://localhost:7879/get/service/numerlast").then((res) => {
+      const apis = res.data;
+      this.setState({ apis });
+    });
+  };
   Graph(x1) {
     dataGraph = [
       {
@@ -153,6 +159,19 @@ class newton extends React.Component {
     this.createTable(data["x1"], data["x2"], data["error"]);
     this.setState({ showTable: true, showGrap: true });
     this.Graph(data["x1"]);
+
+    const numerdata = {
+      bequ: this.state.data,
+      bxl: this.state.xlapi,
+    };
+    axios
+      .post("http://localhost:7879/post/service/inputnumer", {
+        numerdata,
+      })
+      .then((res) => {
+        console.log(res);
+        console.log(res.data);
+      });
   }
 
   render() {
@@ -169,62 +188,77 @@ class newton extends React.Component {
 
     const { size } = this.state;
     return (
-      <form action="">
-        <header className="header">
-          <div className="container">
-            <div className="header_area">
-              <h1>Newton Raphson Method</h1>
+      <div>
+        <form action="">
+          <header className="header">
+            <div className="container">
+              <div className="header_area">
+                <h1>Newton Raphson Method</h1>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
+          <h2 className="mt-4">Equation</h2>
+          <InputGroup className="mt-4" size="lg">
+            <InputGroupAddon addonType="prepend">Equation: </InputGroupAddon>
+            <Input onChange={this.handleChange} />
+          </InputGroup>
+          <br />
+          <InputGroup>
+            <InputGroupAddon addonType="prepend">Xi-1: </InputGroupAddon>
+            <Input onChange={this.X} />
+          </InputGroup>
 
-        <h2 className="mt-4">Equation</h2>
-        <InputGroup className="mt-4" size="lg">
-          <InputGroupAddon addonType="prepend">Equation: </InputGroupAddon>
-          {/* <Input onChange={this.handleChange} /> */}
-          <Input />
-        </InputGroup>
-        <br />
-        <InputGroup>
-          <InputGroupAddon addonType="prepend">Xi-1: </InputGroupAddon>
-          {/* <Input onChange={this.X} /> */}
-          <Input />
-        </InputGroup>
-
-        <ButtonGroup>
           <Button
             className="mt-4"
             color="success"
             type="submit"
+            block
             onClick={this.onSubmit}
           >
             Submit
           </Button>
-        </ButtonGroup>
 
-        <div>
-          <br></br>
-          <br></br>
-          {this.state.showTable === true ? (
-            <div>
-              <h2 style={{ textAlign: "left" }}>Table of Newton Raphson</h2>
-              <h4 style={{ textAlign: "left" }}>
-                {" "}
-                fx = {this.state.fx}
-                <br></br> x = {this.state.x1}
-                <Table columns={columns} dataSource={dataTable} size="middle" />
-              </h4>
-            </div>
-          ) : (
-            ""
-          )}
-          {this.state.showGrap === true ? (
-            <PlotlyComponent data={dataGraph} Layout={layout} config={config} />
-          ) : (
-            ""
-          )}
-        </div>
-      </form>
+          <Button
+            className="mt-4"
+            color="primary"
+            type="api"
+            block
+            onClick={this.apinumer}
+          >
+            API
+          </Button>
+          <div>
+            <br></br>
+            <br></br>
+            {this.state.showTable === true ? (
+              <div>
+                <h2 style={{ textAlign: "left" }}>Table of Newton Raphson</h2>
+                <h4 style={{ textAlign: "left" }}>
+                  {" "}
+                  fx = {this.state.fx}
+                  <br></br> x = {this.state.x1}
+                  <Table
+                    columns={columns}
+                    dataSource={dataTable}
+                    size="middle"
+                  />
+                </h4>
+              </div>
+            ) : (
+              ""
+            )}
+            {this.state.showGrap === true ? (
+              <PlotlyComponent
+                data={dataGraph}
+                Layout={layout}
+                config={config}
+              />
+            ) : (
+              ""
+            )}
+          </div>
+        </form>
+      </div>
     );
   }
 }

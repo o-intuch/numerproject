@@ -1,9 +1,10 @@
 import React from "react";
 import { InputGroup, InputGroupAddon, Input, Table } from "reactstrap";
-import { Button, ButtonGroup } from "reactstrap";
+import { Button, Alert } from "reactstrap";
 import { evaluate, parse } from "mathjs";
 import createPlotlyComponent from "react-plotlyjs";
 import Plotly from "plotly.js/dist/plotly-cartesian";
+import axios from "axios";
 
 const PlotlyComponent = createPlotlyComponent(Plotly);
 
@@ -17,6 +18,8 @@ class Onepoint extends React.Component {
       x: [],
       error: [],
       fx: [],
+      apis: [],
+      xlapi: "",
     };
 
     this.OP = this.OP.bind(this);
@@ -31,7 +34,16 @@ class Onepoint extends React.Component {
 
   x({ target: { value } }) {
     this.state.x[0] = parseFloat(value);
+    this.state.xlapi = value;
   }
+
+  apinumer = (a) => {
+    axios.get("http://localhost:7879/get/service/numerlast").then((res) => {
+      const apis = res.data;
+      this.setState({ apis });
+    });
+  };
+
   OP = (e) => {
     var value = this.state.data;
     var x = parseFloat(this.state.x);
@@ -74,10 +86,22 @@ class Onepoint extends React.Component {
     this.setState({ data: "" });
 
     e.preventDefault();
+    const numerdata = {
+      bequ: this.state.data,
+      bxl: this.state.xlapi,
+    };
+    axios
+      .post("http://localhost:7879/post/service/inputnumer", {
+        numerdata,
+      })
+      .then((res) => {
+        console.log(res);
+        console.log(res.data);
+      });
   };
 
   plot() {
-    const x_plot = this.state.x;
+    const x_plot = this.state.xl;
     const y_plot = this.state.fx;
 
     var data = [
@@ -121,16 +145,37 @@ class Onepoint extends React.Component {
           </InputGroup>
           <br />
 
-          <ButtonGroup>
-            <Button
-              className="mt-4"
-              color="success"
-              type="submit"
-              onClick={this.OP}
-            >
-              Submit
-            </Button>
-          </ButtonGroup>
+          <Button
+            className="mt-4"
+            color="success"
+            type="submit"
+            block
+            onClick={this.OP}
+          >
+            Submit
+          </Button>
+          <Button
+            className="mt-4"
+            color="primary"
+            type="api"
+            block
+            onClick={this.apinumer}
+          >
+            API
+          </Button>
+
+          <div>
+            <Alert color="primary">
+              <ul>
+                {this.state.apis.map((api) => (
+                  <li>
+                    <h1>Equation = {api.bequ}</h1>
+                    <h1>X = {api.bxl}</h1>
+                  </li>
+                ))}
+              </ul>
+            </Alert>
+          </div>
 
           <h2 className="mt-4">Table</h2>
           <Table bordered>

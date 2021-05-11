@@ -1,9 +1,10 @@
 import React from "react";
 import { InputGroup, InputGroupAddon, Input, Table, Card } from "reactstrap";
-import { Button, ButtonGroup } from "reactstrap";
-import { evaluate, range } from "mathjs";
+import { Button, Alert } from "reactstrap";
+import { evaluate, im, range } from "mathjs";
 import createPlotlyComponent from "react-plotlyjs";
-import Plotly from "plotly.js/dist/plotly-cartesian";
+import Plotly, { isMiddleAnchor } from "plotly.js/dist/plotly-cartesian";
+import axios from "axios";
 
 const PlotlyComponent = createPlotlyComponent(Plotly);
 
@@ -23,6 +24,9 @@ class False extends React.Component {
       data: "",
       value: "",
       movie: "",
+      apis: [],
+      xlapi: "",
+      xrapi: "",
     };
 
     this.FP = this.FP.bind(this);
@@ -39,10 +43,19 @@ class False extends React.Component {
   xl({ target: { value } }) {
     //thi.setState({x[0]:value})
     this.state.xl[0] = parseFloat(value);
+    this.state.xlapi = value;
   }
   xr({ target: { value } }) {
     this.state.xr[0] = parseFloat(value);
+    this.state.xrapi = value;
   }
+
+  apinumer = (a) => {
+    axios.get("http://localhost:7879/get/service/numerlast").then((res) => {
+      const apis = res.data;
+      this.setState({ apis });
+    });
+  };
 
   FP = (e) => {
     var value = this.state.data;
@@ -134,98 +147,21 @@ class False extends React.Component {
       this.setState({ data: "" });
     }
     this.plot();
+
     e.preventDefault();
-  };
-  FP_API = (e) => {
-    var value = this.state.data;
-    var xl = parseFloat(this.state.xl);
-    var xr = parseFloat(this.state.xr);
-    console.log(xl, xr);
-    console.log("this is value", value);
-    var xm = 0,
-      xm_old = 0,
-      error = 0,
-      fxl = 0,
-      fxr = 0,
-      fxm = 0;
-    var j = 0,
-      fx = "",
-      cal;
-
-    if (value != "" && xl != "" && xr != "") {
-      do {
-        let scp = {
-          x: xl,
-        };
-        console.log(value);
-        cal = evaluate(value, scp);
-        console.log("this is fxl:", cal);
-        fx = "";
-        fxl = 0;
-        fxl = parseFloat(cal);
-        this.state.fxl[j] = fxl;
-        console.log(fxl);
-        cal = 0;
-
-        let scp1 = {
-          x: xr,
-        };
-        console.log(value);
-        cal = evaluate(value, scp1);
-        console.log(cal);
-        fx = "";
-        fxr = 0;
-        fxr = parseFloat(cal);
-        this.state.fxr[j] = fxr;
-        cal = 0;
-
-        xm = xr - (fxr * (xl - xr)) / (fxl - fxr);
-
-        let scp2 = {
-          x: xm,
-        };
-        console.log(value);
-        cal = evaluate(value, scp2);
-        console.log(cal);
-        fx = "";
-        fxm = 0;
-        fxm = parseFloat(cal);
-        this.state.fxm[j] = fxm;
-        cal = 0;
-
-        this.state.xm[j] = xm;
-        error = Math.abs((xm - xm_old) / xm);
-        this.state.error[j] = error;
-        console.log("error = ", error);
-        xm_old = xm;
-        console.log("fxl = ", fxl, "fxm = ", fxm, "fxr = ", fxr);
-        console.log(fxm * fxr);
-        j++;
-
-        if (error >= 0.00001) {
-          if (fxl * fxr < 0) {
-            this.state.xl[j] = xm;
-            this.state.xr[j] = xr;
-            xl = xm;
-          } else if (fxl * fxr > 0) {
-            this.state.xr[j] = xm;
-            this.state.xl[j] = xl;
-            xr = xm;
-          }
-        }
-
-        console.log(
-          "xl =",
-          this.state.xl[j],
-          "xm = ",
-          this.state.xm[j - 1],
-          "xr = ",
-          this.state.xr[j]
-        );
-      } while (error >= 0.00001);
-      this.setState({ data: "" });
-    }
-    e.preventDefault();
+    const numerdata = {
+      bequ: this.state.data,
+      bxl: this.state.xlapi,
+      bxr: this.state.xrapi,
+    };
+    axios
+      .post("http://localhost:7879/post/service/inputnumer", {
+        numerdata,
+      })
+      .then((res) => {
+        console.log(res);
+        console.log(res.data);
+      });
   };
 
   plot() {
@@ -257,6 +193,7 @@ class False extends React.Component {
 
     return data;
   }
+
   render() {
     let data = this.plot();
     var i = 0;
@@ -294,16 +231,39 @@ class False extends React.Component {
             <Input onChange={this.xr} />
           </InputGroup>
 
-          <ButtonGroup>
-            <Button
-              className="mt-4"
-              color="success"
-              type="submit"
-              onClick={this.FP}
-            >
-              Submit
-            </Button>
-          </ButtonGroup>
+          <Button
+            className="mt-4"
+            color="success"
+            type="submit"
+            block
+            onClick={this.FP}
+          >
+            Submit
+          </Button>
+
+          <Button
+            className="mt-4"
+            color="primary"
+            type="api"
+            block
+            onClick={this.apinumer}
+          >
+            API
+          </Button>
+
+          <div>
+            <Alert color="primary">
+              <ul>
+                {this.state.apis.map((apif) => (
+                  <li>
+                    <h1>Equation = {apif.bequ}</h1>
+                    <h1>XL = {apif.bxl}</h1>
+                    <h1>XR = {apif.bxr}</h1>
+                  </li>
+                ))}
+              </ul>
+            </Alert>
+          </div>
 
           <h2 className="mt-4">Table</h2>
           <Table bordered>

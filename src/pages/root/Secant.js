@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { Input, Typography, Button, Table } from "antd";
+import { Typography,Table } from "antd";
 import { range, compile, evaluate, simplify, parse, abs } from "mathjs";
+import { InputGroup, InputGroupAddon, Input } from "reactstrap";
+import { Button, ButtonGroup } from "reactstrap";
 import createPlotlyComponent from "react-plotlyjs";
 import Plotly from "plotly.js/dist/plotly-cartesian";
 
@@ -38,9 +40,9 @@ const columns = [
 ];
 var dataTable = [];
 
-class Secant extends Component {
-  constructor() {
-    super();
+class Secant extends React.Component {
+  constructor(props) {
+    super(props);
     this.state = {
       size: "large",
       fx: "",
@@ -48,6 +50,9 @@ class Secant extends Component {
       x2: 0,
       x0: 0,
       showTable: false,
+      apis: [],
+      xlapi: "",
+      xrapi: "",
     };
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -168,94 +173,84 @@ class Secant extends Component {
 
     const { size } = this.state;
     return (
-      <div
-        id="content"
-        style={{ padding: 24, background: "#fff", minHeight: 360 }}
-      >
-        <Title style={{ textAlign: "center" }}>Secant Method </Title>
-        <br></br>
+      <div>
+        <form action="">
+          <header className="header">
+            <div className="container">
+              <div className="header_area">
+                <h1>Secant Method</h1>
+              </div>
+            </div>
+          </header>
+          <h2 className="mt-4">Equation</h2>
+          <InputGroup className="mt-4" size="lg">
+            <InputGroupAddon addonType="prepend">Equation: </InputGroupAddon>
+            <Input onChange={this.handleChange} />
+          </InputGroup>
+          <br />
+          <InputGroup>
+            <InputGroupAddon addonType="prepend">Xi-1: </InputGroupAddon>
+            <Input onChange={this.X} />
+          </InputGroup>
+          <br />
+           <InputGroup>
+            <InputGroupAddon addonType="prepend">Xi: </InputGroupAddon>
+            <Input onChange={this.X} />
+          </InputGroup>
 
-        <form style={{ textAlign: "center" }} onSubmit={this.onInputChange}>
-          <h1>
-            Equation : &nbsp;&nbsp;
-            <Input
-              size="large"
-              placeholder="Input your Function"
-              name="fx"
-              style={{ width: 500 }}
-              onChange={this.onInputChange}
-            />
-          </h1>
-          <br></br>
-          <h1>
-            Xi-1 :
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <Input
-              size="large"
-              placeholder="Input your Xl"
-              name="x1"
-              style={{ width: 500 }}
-              onChange={this.onInputChange}
-            />
-          </h1>
-          <br></br>
-          <h1>
-            Xi :
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <Input
-              size="large"
-              placeholder="Input your Xr"
-              name="x2"
-              style={{ width: 500 }}
-              onChange={this.onInputChange}
-            />
-          </h1>
-          <br></br>
           <Button
+            className="mt-4"
+            color="success"
             type="submit"
-            shape="round"
-            size={size}
-            style={{ color: "#ffffff", background: "#ca5cf2" }}
+            block
             onClick={this.onSubmit}
           >
             Submit
           </Button>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
           <Button
-            type="submit"
-            shape="round"
-            size={size}
-            style={{ color: "#ffffff", background: "#f7c602" }}
-            onClick={this.onSubmit}
+            className="mt-4"
+            color="primary"
+            type="api"
+            block
+            onClick={this.apinumer}
           >
-            Function
+            API
           </Button>
+
+          <div>
+            <br></br>
+            <br></br>
+            {this.state.showTable === true ? (
+              <div>
+                <h2 style={{ textAlign: "center" }}>Table of Secant</h2>
+                <h4 style={{ textAlign: "center" }}>
+                  {" "}
+                  fx = {this.state.fx}
+                  <br></br> x(i-1) = {this.state.x1}{" "}
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x(i) = {this.state.x2}
+                  <Table
+                    columns={columns}
+                    dataSource={dataTable}
+                    size="middle"
+                  />
+                </h4>
+              </div>
+            ) : (
+              ""
+            )}
+
+            {this.state.showGrap === true ? (
+              <PlotlyComponent
+                data={dataGraph}
+                Layout={layout}
+                config={config}
+              />
+            ) : (
+              ""
+            )}
+          </div>
         </form>
-
-        <div>
-          <br></br>
-          <br></br>
-          {this.state.showTable === true ? (
-            <div>
-              <h2 style={{ textAlign: "center" }}>Table of Secant</h2>
-              <h4 style={{ textAlign: "center" }}>
-                {" "}
-                fx = {this.state.fx}
-                <br></br> x(i-1) = {this.state.x1}{" "}
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x(i) = {this.state.x2}
-                <Table columns={columns} dataSource={dataTable} size="middle" />
-              </h4>
-            </div>
-          ) : (
-            ""
-          )}
-
-          {this.state.showGrap === true ? (
-            <PlotlyComponent data={dataGraph} Layout={layout} config={config} />
-          ) : (
-            ""
-          )}
-        </div>
       </div>
     );
   }
