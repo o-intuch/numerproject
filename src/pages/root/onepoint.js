@@ -86,17 +86,17 @@ class Onepoint extends React.Component {
     this.setState({ data: "" });
 
     e.preventDefault();
+    
     const numerdata = {
       bequ: this.state.data,
       bxl: this.state.xlapi,
     };
     axios
-      .post("http://localhost:7879/post/service/inputnumer", {
-        numerdata,
-      })
+      .post("http://localhost:7879/post/service/inputnumer", { numerdata })
       .then((res) => {
         console.log(res);
         console.log(res.data);
+        this.apinumer();
       });
   };
 
@@ -154,7 +154,7 @@ class Onepoint extends React.Component {
           >
             Submit
           </Button>
-          <Button
+          {/* <Button
             className="mt-4"
             color="primary"
             type="api"
@@ -162,19 +162,17 @@ class Onepoint extends React.Component {
             onClick={this.apinumer}
           >
             API
-          </Button>
+          </Button> */}
 
           <div>
-            <Alert color="primary">
-              <ul>
-                {this.state.apis.map((api) => (
-                  <li>
-                    <h1>Equation = {api.bequ}</h1>
-                    <h1>X = {api.bxl}</h1>
-                  </li>
-                ))}
-              </ul>
-            </Alert>
+            <ul>
+              {this.state.apis.map((api) => (
+                <li>
+                  <h1>Equation = {api.bequ}</h1>
+                  <h1>X = {api.bxl}</h1>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <h2 className="mt-4">Table</h2>

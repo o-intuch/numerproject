@@ -36,11 +36,10 @@ class Bisec extends React.Component {
 
   handleChange({ target: { value } }) {
     this.setState({ data: value });
-    console.log("1245757757575", this.state.value);
+    console.log(value);
   }
 
   xl({ target: { value } }) {
-    //this.setState({x[0]:value})
     this.state.xl[0] = parseFloat(value);
     this.state.xlapi = value;
   }
@@ -60,8 +59,8 @@ class Bisec extends React.Component {
     var value = this.state.data;
     var xl = parseFloat(this.state.xl);
     var xr = parseFloat(this.state.xr);
-    console.log(xl, xr);
-    //console.log("this is value", value);
+    //   console.log(xl, xr);
+    //  console.log("this is value", value);
     var xm = 0,
       xm_old = 0,
       error = 0,
@@ -77,9 +76,9 @@ class Bisec extends React.Component {
         let scp = {
           x: xl,
         };
-        console.log(value);
+        console.log("xl", value);
         cal = evaluate(value, scp);
-        //console.log("this is fxl:", cal);
+        console.log("this is fxl:", cal);
         fx = "";
         fxl = 0;
         fxl = parseFloat(cal);
@@ -90,9 +89,10 @@ class Bisec extends React.Component {
         let scp1 = {
           x: xr,
         };
-        console.log(value);
+        console.log("xr", value);
         cal = evaluate(value, scp1);
         console.log(cal);
+        console.log("this is fxr:", cal);
         fx = "";
         fxr = 0;
         fxr = parseFloat(cal);
@@ -104,7 +104,7 @@ class Bisec extends React.Component {
         let scp2 = {
           x: xm,
         };
-        console.log(value);
+        console.log("xm", value);
         cal = evaluate(value, scp2);
         console.log(cal);
         fx = "";
@@ -116,9 +116,9 @@ class Bisec extends React.Component {
         this.state.xm[j] = xm;
         error = Math.abs((xm - xm_old) / xm);
         this.state.error[j] = error;
-        //console.log("error = ", error);
+        console.log("error = ", error);
         xm_old = xm;
-        //console.log("fxl = ", fxl, "fxm = ", fxm, "fxr = ", fxr);
+        console.log("fxl = ", fxl, "fxm = ", fxm, "fxr = ", fxr);
         console.log(fxm * fxr);
         j++;
 
@@ -135,7 +135,7 @@ class Bisec extends React.Component {
         }
 
         console.log(
-          "xl =",
+          "xl = ",
           this.state.xl[j],
           "xm = ",
           this.state.xm[j - 1],
@@ -143,7 +143,7 @@ class Bisec extends React.Component {
           this.state.xr[j]
         );
       } while (error >= 0.00001);
-      this.setState({ data: "" });
+      this.setState({ data: " " });
     }
     this.plot();
     e.preventDefault();
@@ -159,7 +159,7 @@ class Bisec extends React.Component {
       })
       .then((res) => {
         console.log(res);
-        console.log(res.data);
+        this.apinumer();
       });
   };
 
@@ -175,7 +175,7 @@ class Bisec extends React.Component {
         x: xl_plot,
         y: yl_plot,
         marker: {
-          color: "#0066FF",
+          color: "#6699FF",
         },
         name: "XL",
       },
@@ -184,7 +184,7 @@ class Bisec extends React.Component {
         x: xr_plot,
         y: yr_plot,
         marker: {
-          color: "#FF33FF",
+          color: "#FFA500",
         },
         name: "XR",
       },
@@ -238,7 +238,7 @@ class Bisec extends React.Component {
           >
             Submit
           </Button>
-          <Button
+          {/* <Button
             className="mt-4"
             color="primary"
             type="api"
@@ -246,19 +246,17 @@ class Bisec extends React.Component {
             onClick={this.apinumer}
           >
             API
-          </Button>
+          </Button> */}
           <div>
-            <Alert color="primary">
-              <ul>
-                {this.state.apis.map((api) => (
-                  <li>
-                    <h1>Equation = {api.bequ}</h1>
-                    <h1>XL = {api.bxl}</h1>
-                    <h1>XR = {api.bxr}</h1>
-                  </li>
-                ))}
-              </ul>
-            </Alert>
+            <ul>
+              {this.state.apis.map((api) => (
+                <li>
+                  <h1>Equation = {api.bequ}</h1>
+                  <h1>XL = {api.bxl}</h1>
+                  <h1>XR = {api.bxr}</h1>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <h2 className="mt-4">Table</h2>

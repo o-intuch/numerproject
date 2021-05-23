@@ -4,8 +4,31 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mySql = require("mysql");
 
-app.use(cors());
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      version: "1.0.0",
+      title: "INTUCH API DOCs",
+      description: "Numer Project",
+      contact: {
+        name: "Intuch Chairaksirikul",
+      },
+      servers: ["http://localhost:7879"],
+    },
+  },
+  apis: ["server.js"],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+app.use("/swaggerserver", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+/************************************************************************************************************************************/
+
+app.use(cors());
 // Configuring body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -28,11 +51,23 @@ connection.connect((err) => {
   if (err) {
     console.log(err);
   } else {
-    console.log("DB Connected");
+    console.log("Database Connected");
   }
 });
 
-//list customers
+/************************************************************************************************************************************/
+
+//ดึงข้อมูลจาก db ขึ้นมาโชว์บนเว็บ
+/**
+ * @swagger
+ * /get/service/numerlist:
+ *  get:
+ *    tags: ["GET"]
+ *    description: เรียก นิวเมอร์ทั้งหมดในฐานข้อมูล
+ *    responses:
+ *      '200':
+ *        description: A successful response
+ */
 app.get("/get/service/numerlist", (req, res) => {
   connection.query("SELECT * FROM numer", (error, results) => {
     if (error) throw error;
@@ -40,7 +75,18 @@ app.get("/get/service/numerlist", (req, res) => {
   });
 });
 
-//post customers
+/************************************************************************************************************************************/
+//ดึงข้อมูลจากเว็บ ลงในดาต้าเบส
+/**
+ * @swagger
+ * /post/service/inputnumer:
+ *  post:
+ *    tags: ["POST"]
+ *    description: นำข้อมูลที่กรอกหน้าฟอร์มเข้า Database
+ *    responses:
+ *      '200':
+ *        description: A successful response
+ */
 app.post("/post/service/inputnumer", (req, res) => {
   const numerdata = req.body.numerdata;
   let command = "INSERT INTO numer SET ?";
@@ -55,27 +101,20 @@ app.post("/post/service/inputnumer", (req, res) => {
   });
 });
 
-//post numer
-app.post("/post/service/inputnumer2", (req, res) => {
-  const Eq = req.body.Eq;
-  const XL = req.body.XL;
-  const XR = req.body.XR;
-  const email = req.body.email;
+/************************************************************************************************************************************ */
 
-  let command = "INSERT INTO numer SET ?";
-  connection.query(command, Eq, XL, XR, email, (error, results) => {
-    if (!error) {
-      console.log(results);
-      res.send(results);
-    } else {
-      console.log(error);
-      throw error;
-    }
-  });
-});
-
-//list customers last
-app.get("/get/service/numerlast", (req, res) => { //ดึงข้อมูลตัวล่าสุดที่เรากรอกลงไป
+//นำข้อมูลตัวสุดท้ายออกมาโชว์บนเว็บ
+/**
+ * @swagger
+ * /get/service/numerlast:
+ *  get:
+ *    tags: ["GET"]
+ *    description: ดึงข้อมูลตัวล่าสุดที่เรากรอกลงไปมาแสดง
+ *    responses:
+ *      '200':
+ *        description: A successful response
+ */
+app.get("/get/service/numerlast", (req, res) => {
   connection.query(
     "SELECT * FROM numer ORDER BY idbisection DESC LIMIT 1",
     (error, results) => {

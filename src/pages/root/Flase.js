@@ -1,6 +1,6 @@
 import React from "react";
 import { InputGroup, InputGroupAddon, Input, Table, Card } from "reactstrap";
-import { Button, Alert } from "reactstrap";
+import { Button} from "reactstrap";
 import { evaluate, im, range } from "mathjs";
 import createPlotlyComponent from "react-plotlyjs";
 import Plotly, { isMiddleAnchor } from "plotly.js/dist/plotly-cartesian";
@@ -147,8 +147,8 @@ class False extends React.Component {
       this.setState({ data: "" });
     }
     this.plot();
-
     e.preventDefault();
+
     const numerdata = {
       bequ: this.state.data,
       bxl: this.state.xlapi,
@@ -241,7 +241,7 @@ class False extends React.Component {
             Submit
           </Button>
 
-          <Button
+          {/* <Button
             className="mt-4"
             color="primary"
             type="api"
@@ -249,10 +249,9 @@ class False extends React.Component {
             onClick={this.apinumer}
           >
             API
-          </Button>
+          </Button> */}
 
           <div>
-            <Alert color="primary">
               <ul>
                 {this.state.apis.map((apif) => (
                   <li>
@@ -262,7 +261,6 @@ class False extends React.Component {
                   </li>
                 ))}
               </ul>
-            </Alert>
           </div>
 
           <h2 className="mt-4">Table</h2>
